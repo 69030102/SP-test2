@@ -29,7 +29,7 @@ const STR = {
     status_1: "เข้าจอดแล้ว",
     status_2: "ชำระเงินตอนออก",
     exit_label: "สแกน QR นี้ตอนออกจากลานจอด",
-    note: "ขับดีๆ นะ",
+    note: "ขับขี่ปลอดภัย",
     save_ticket_btn: "บันทึกบัตรลงมือถือ",
     rate_note: h => `ชั่วโมงแรกฟรี จากนั้นคิด ${CONFIG.CURRENCY}${h} ต่อชั่วโมง`,
     not_found_title: "ไม่พบข้อมูลบัตร",
