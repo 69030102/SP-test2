@@ -127,7 +127,7 @@ function zigzagSVG(){
 function iconScan(){ return `<svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 7V4h3M20 7V4h-3M4 17v3h3M20 17v3h-3"/></svg>`; }
 function iconCar(){ return `<svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 16v-4l2-5h12l2 5v4"/><circle cx="7.5" cy="16.5" r="1.5"/><circle cx="16.5" cy="16.5" r="1.5"/></svg>`; }
 function iconExit(){ return `<svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M13 4h5v16h-5M9 12h9M13 8l4 4-4 4"/></svg>`; }
-function iconCheck(){ return `<svg class="check-draw" viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M8 12l3 3 5-5"/></svg>`; }
+function iconCheck(){ return `<svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M8 12l3 3 5-5"/></svg>`; }
 function iconClock(){ return `<svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 3"/></svg>`; }
 
 function render(){
@@ -251,10 +251,6 @@ function renderTicket(view, params){
       el.style.opacity = "1";
       el.style.transform = "none";
     });
-    targetCard.querySelectorAll(".check-draw path, .check-draw circle").forEach(el => {
-      el.style.animation = "none";
-      el.style.strokeDashoffset = "0";
-    });
     try{
       if(document.fonts && document.fonts.ready){ await document.fonts.ready; }
       await new Promise(resolve => requestAnimationFrame(() => requestAnimationFrame(resolve)));
@@ -344,10 +340,6 @@ window.addEventListener("DOMContentLoaded", () => {
   if(!location.hash) location.hash = "/";
   render();
 
-  // Load PyScript only after the first view has painted and settled, so its
-  // heavy Pyodide download/init doesn't compete with the entrance animations
-  // for the main thread on a cold mobile load. handleCheckin() already falls
-  // back to a plain-JS ticket ID generator if PyScript isn't ready yet.
   const startPyscript = () => setTimeout(loadPyscriptDeferred, 1200);
   if("requestIdleCallback" in window){
     requestIdleCallback(startPyscript, { timeout: 3000 });
