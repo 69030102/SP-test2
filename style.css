@@ -73,8 +73,8 @@
   .section{ margin-top:14px; }
   .status-row{ display:flex; align-items:center; gap:7px; font-size:11px; margin:9px 0; }
   .status-row svg{ width:14px; height:14px; stroke:var(--teal); flex-shrink:0; }
-  .check-draw path{ stroke-dasharray:14; stroke-dashoffset:14; animation: drawCheck .45s ease forwards; animation-delay:.6s; }
-  .check-draw circle{ stroke-dasharray:57; stroke-dashoffset:57; animation: drawCheck .5s ease forwards; animation-delay:.45s; }
+  .check-draw path{ stroke-dasharray:14; stroke-dashoffset:14; animation: drawCheck .22s ease forwards; animation-delay:.28s; }
+  .check-draw circle{ stroke-dasharray:57; stroke-dashoffset:57; animation: drawCheck .28s ease forwards; animation-delay:.05s; }
 
   .divider{ height:0; border-top:1px dashed var(--line); margin:18px 0; }
 
