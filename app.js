@@ -245,6 +245,15 @@ function renderTicket(view, params){
     btn.disabled = true;
     const targetCard = document.getElementById("ticketCard");
     targetCard.classList.remove("stagger");
+    targetCard.querySelectorAll(".qr-bounce").forEach(el => {
+      el.classList.remove("qr-bounce");
+      el.style.opacity = "1";
+      el.style.transform = "none";
+    });
+    targetCard.querySelectorAll(".check-draw path, .check-draw circle").forEach(el => {
+      el.style.animation = "none";
+      el.style.strokeDashoffset = "0";
+    });
     try{
       if(document.fonts && document.fonts.ready){ await document.fonts.ready; }
       const canvas = await html2canvas(targetCard, { backgroundColor: "#fbf9f3", scale: 2, useCORS: true, logging: false });
