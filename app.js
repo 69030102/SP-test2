@@ -247,6 +247,7 @@ function renderTicket(view, params){
     targetCard.classList.remove("stagger");
     targetCard.querySelectorAll(".qr-bounce").forEach(el => {
       el.classList.remove("qr-bounce");
+      el.style.animation = "none";
       el.style.opacity = "1";
       el.style.transform = "none";
     });
@@ -256,7 +257,30 @@ function renderTicket(view, params){
     });
     try{
       if(document.fonts && document.fonts.ready){ await document.fonts.ready; }
+      await new Promise(resolve => requestAnimationFrame(() => requestAnimationFrame(resolve)));
+
+      const cardRect = targetCard.getBoundingClientRect();
+      const qrEl = document.querySelector("#qrcode canvas, #qrcode img");
+      let qrDataUrl = null, qrOffsetX = 0, qrOffsetY = 0, qrW = 0, qrH = 0;
+      if(qrEl){
+        const qrRect = qrEl.getBoundingClientRect();
+        qrOffsetX = qrRect.left - cardRect.left;
+        qrOffsetY = qrRect.top - cardRect.top;
+        qrW = qrRect.width;
+        qrH = qrRect.height;
+        qrDataUrl = qrEl.tagName === "CANVAS" ? qrEl.toDataURL("image/png") : qrEl.src;
+      }
+
       const canvas = await html2canvas(targetCard, { backgroundColor: "#fbf9f3", scale: 2, useCORS: true, logging: false });
+
+      if(qrDataUrl){
+        const scale = canvas.width / targetCard.offsetWidth;
+        const qrImg = new Image();
+        qrImg.src = qrDataUrl;
+        await new Promise(res => { qrImg.onload = res; qrImg.onerror = res; });
+        const ctx = canvas.getContext("2d");
+        ctx.drawImage(qrImg, qrOffsetX * scale, qrOffsetY * scale, qrW * scale, qrH * scale);
+      }
       const link = document.createElement("a");
       link.download = "parking-ticket-" + id + ".png";
       link.href = canvas.toDataURL("image/png");
