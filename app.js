@@ -311,6 +311,26 @@ function renderNotFound(view){
 }
 
 window.addEventListener("hashchange", render);
+
+function loadPyscriptDeferred(){
+  if(document.querySelector('script[src*="pyscript"]')) return;
+  const link = document.createElement("link");
+  link.rel = "stylesheet";
+  link.href = "https://pyscript.net/releases/2024.1.1/core.css";
+  document.head.appendChild(link);
+
+  const coreScript = document.createElement("script");
+  coreScript.type = "module";
+  coreScript.src = "https://pyscript.net/releases/2024.1.1/core.js";
+  document.head.appendChild(coreScript);
+
+  const pyScript = document.createElement("script");
+  pyScript.type = "py";
+  pyScript.src = "script.py";
+  pyScript.setAttribute("config", '{"packages":[]}');
+  document.body.appendChild(pyScript);
+}
+
 window.addEventListener("DOMContentLoaded", () => {
   const langLabel = document.getElementById("langLabel");
   const langToggle = document.getElementById("langToggle");
@@ -323,4 +343,15 @@ window.addEventListener("DOMContentLoaded", () => {
   }
   if(!location.hash) location.hash = "/";
   render();
+
+  // Load PyScript only after the first view has painted and settled, so its
+  // heavy Pyodide download/init doesn't compete with the entrance animations
+  // for the main thread on a cold mobile load. handleCheckin() already falls
+  // back to a plain-JS ticket ID generator if PyScript isn't ready yet.
+  const startPyscript = () => setTimeout(loadPyscriptDeferred, 1200);
+  if("requestIdleCallback" in window){
+    requestIdleCallback(startPyscript, { timeout: 3000 });
+  } else {
+    window.addEventListener("load", startPyscript, { once: true });
+  }
 });
