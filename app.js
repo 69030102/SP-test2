@@ -5,6 +5,7 @@ const CONFIG = {
 };
 
 let LANG = "th";
+let durationTimerInterval = null;
 
 const STR = {
   th: {
@@ -24,6 +25,7 @@ const STR = {
     label_id: "หมายเลขบัตร",
     label_checkin: "เวลาเข้าจอด",
     label_rate: "อัตราค่าจอด",
+    live_duration_label: "จอดมาแล้ว",
     status_1: "เข้าจอดแล้ว",
     status_2: "ชำระเงินตอนออก",
     exit_label: "สแกน QR นี้ตอนออกจากลานจอด",
@@ -53,6 +55,7 @@ const STR = {
     label_id: "Ticket No.",
     label_checkin: "Check-in time",
     label_rate: "Rate",
+    live_duration_label: "Time parked",
     status_1: "Checked in",
     status_2: "Pay on exit",
     exit_label: "SCAN THIS QR WHEN YOU LEAVE",
@@ -116,6 +119,15 @@ function lineItem(label, value){
   return `<div class="li"><span class="lbl">${label}</span><span class="fill"></span><span class="val">${value}</span></div>`;
 }
 
+function fmtLiveDuration(t){
+  const totalSec = Math.max(0, Math.floor((Date.now() - t) / 1000));
+  const h = Math.floor(totalSec / 3600);
+  const m = Math.floor((totalSec % 3600) / 60);
+  const s = totalSec % 60;
+  const pad = n => String(n).padStart(2, "0");
+  return h > 0 ? `${pad(h)}:${pad(m)}:${pad(s)}` : `${pad(m)}:${pad(s)}`;
+}
+
 function zigzagSVG(){
   const w=320,h=11,tooth=16,n=Math.ceil(w/tooth);
   let pts=[`0,0`];
@@ -134,6 +146,7 @@ function render(){
   const { path, params } = parseHash();
   const view = document.getElementById("view");
   view.innerHTML = "";
+  if(durationTimerInterval){ clearInterval(durationTimerInterval); durationTimerInterval = null; }
 
   if(path === "/") renderHome(view);
   else if(path === "/checkin") handleCheckin();
@@ -212,6 +225,10 @@ function renderTicket(view, params){
           ${lineItem(tr('label_id'), id)}
           ${lineItem(tr('label_checkin'), fmtDateTime(t))}
           ${lineItem(tr('label_rate'), `<span style="font-family:Arial,Helvetica,sans-serif;">${CONFIG.CURRENCY}</span>${CONFIG.RATE_PER_HOUR}/hr`)}
+          <div class="live-duration">
+            <span class="lbl">${tr('live_duration_label')}</span>
+            <span class="val" id="liveDuration">${fmtLiveDuration(t)}</span>
+          </div>
         </div>
         <div class="section">
           <div class="pill">${tr('pill_status')}</div>
@@ -235,6 +252,15 @@ function renderTicket(view, params){
 
   const checkoutUrl = buildUrl("/checkout", { id, t });
   new QRCode(document.getElementById("qrcode"), { text: checkoutUrl, width: 140, height: 140, correctLevel: QRCode.CorrectLevel.M });
+
+  const liveDurationEl = document.getElementById("liveDuration");
+  if(liveDurationEl){
+    durationTimerInterval = setInterval(() => {
+      const el = document.getElementById("liveDuration");
+      if(!el){ clearInterval(durationTimerInterval); durationTimerInterval = null; return; }
+      el.textContent = fmtLiveDuration(t);
+    }, 1000);
+  }
 
   playDing();
   vibrate(60);
@@ -267,7 +293,8 @@ function renderTicket(view, params){
         qrDataUrl = qrEl.tagName === "CANVAS" ? qrEl.toDataURL("image/png") : qrEl.src;
       }
 
-      const canvas = await html2canvas(targetCard, { backgroundColor: "#fbf9f3", scale: 2, useCORS: true, logging: false });
+      const paperColor = getComputedStyle(document.documentElement).getPropertyValue("--paper").trim() || "#fbf9f3";
+      const canvas = await html2canvas(targetCard, { backgroundColor: paperColor, scale: 2, useCORS: true, logging: false });
 
       if(qrDataUrl){
         const scale = canvas.width / targetCard.offsetWidth;
@@ -337,9 +364,33 @@ window.addEventListener("DOMContentLoaded", () => {
       render();
     };
   }
+
+  const themeToggle = document.getElementById("themeToggle");
+  const themeIcon = document.getElementById("themeIcon");
+  const syncThemeIcon = () => {
+    if(themeIcon) themeIcon.textContent = document.documentElement.getAttribute("data-theme") === "dark" ? "☀️" : "🌙";
+  };
+  syncThemeIcon();
+  if(themeToggle){
+    themeToggle.onclick = () => {
+      const isDark = document.documentElement.getAttribute("data-theme") === "dark";
+      if(isDark){
+        document.documentElement.removeAttribute("data-theme");
+      } else {
+        document.documentElement.setAttribute("data-theme", "dark");
+      }
+      syncThemeIcon();
+      try{ localStorage.setItem("sp-theme", isDark ? "light" : "dark"); }catch(e){}
+    };
+  }
+
   if(!location.hash) location.hash = "/";
   render();
 
+  // Load PyScript only after the first view has painted and settled, so its
+  // heavy Pyodide download/init doesn't compete with the entrance animations
+  // for the main thread on a cold mobile load. handleCheckin() already falls
+  // back to a plain-JS ticket ID generator if PyScript isn't ready yet.
   const startPyscript = () => setTimeout(loadPyscriptDeferred, 1200);
   if("requestIdleCallback" in window){
     requestIdleCallback(startPyscript, { timeout: 3000 });
