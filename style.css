@@ -7,6 +7,17 @@
     --teal-soft:#e2efe9;
     --line:#e1ddd1;
   }
+  html[data-theme="dark"]{
+    --bg:#101613;
+    --paper:#1a2320;
+    --ink:#eef1ec;
+    --muted:#8ea89f;
+    --teal:#3fc9a8;
+    --teal-soft:#20332c;
+    --line:#2c3a34;
+  }
+  html{ transition: background-color .25s ease; }
+  body, .ticket, .panel{ transition: background-color .25s ease, color .25s ease; }
   *{box-sizing:border-box;}
   html,body{margin:0;padding:0;}
   body{
@@ -21,14 +32,16 @@
   }
   .app{ width:100%; max-width:340px; }
 
-  .topbar{ display:flex; justify-content:flex-end; margin-bottom:12px; }
-  .lang-toggle{
+  .topbar{ display:flex; justify-content:flex-end; gap:8px; margin-bottom:12px; }
+  .lang-toggle, .theme-toggle{
     background:#fff; border:1px solid var(--line); border-radius:5px;
     color:var(--ink); font-family:'Roboto Mono',monospace; font-size:11px; font-weight:700;
     padding:5px 10px; cursor:pointer; letter-spacing:0.5px;
   }
-  .lang-toggle:hover{ border-color:var(--teal); color:var(--teal); }
-  .lang-toggle:focus-visible, .btn:focus-visible, .staff-link:focus-visible{ outline:2px solid var(--teal); outline-offset:2px; }
+  html[data-theme="dark"] .lang-toggle, html[data-theme="dark"] .theme-toggle{ background:var(--paper); }
+  .theme-toggle{ font-size:13px; line-height:1; padding:5px 9px; }
+  .lang-toggle:hover, .theme-toggle:hover{ border-color:var(--teal); color:var(--teal); }
+  .lang-toggle:focus-visible, .theme-toggle:focus-visible, .btn:focus-visible, .staff-link:focus-visible{ outline:2px solid var(--teal); outline-offset:2px; }
 
   .ticket{
     background:var(--paper); border-radius:14px 14px 0 0;
@@ -69,6 +82,13 @@
   .li .lbl{ color:var(--muted); white-space:nowrap; }
   .li .fill{ flex:1; min-width:12px; border-bottom:1px dotted var(--line); margin-bottom:3px; }
   .li .val{ font-weight:700; font-family:'Roboto Mono',monospace; }
+
+  .live-duration{
+    display:flex; align-items:center; justify-content:space-between; gap:8px;
+    background:var(--teal-soft); border-radius:8px; padding:10px 12px; margin:10px 0 2px;
+  }
+  .live-duration .lbl{ font-size:10px; color:var(--muted); letter-spacing:0.3px; }
+  .live-duration .val{ font-family:'Roboto Mono',monospace; font-weight:700; font-size:15px; color:var(--teal); letter-spacing:0.5px; }
 
   .section{ margin-top:14px; }
   .status-row{ display:flex; align-items:center; gap:7px; font-size:11px; margin:9px 0; }
