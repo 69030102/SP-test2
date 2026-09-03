@@ -368,7 +368,7 @@ window.addEventListener("DOMContentLoaded", () => {
   const themeToggle = document.getElementById("themeToggle");
   const themeIcon = document.getElementById("themeIcon");
   const syncThemeIcon = () => {
-    if(themeIcon) themeIcon.textContent = document.documentElement.getAttribute("data-theme") === "dark" ? "☀️" : "🌙";
+    if(themeIcon) themeIcon.textContent = document.documentElement.getAttribute("data-theme") === "dark" ? "🔆" : "🌙";
   };
   syncThemeIcon();
   if(themeToggle){
@@ -387,10 +387,6 @@ window.addEventListener("DOMContentLoaded", () => {
   if(!location.hash) location.hash = "/";
   render();
 
-  // Load PyScript only after the first view has painted and settled, so its
-  // heavy Pyodide download/init doesn't compete with the entrance animations
-  // for the main thread on a cold mobile load. handleCheckin() already falls
-  // back to a plain-JS ticket ID generator if PyScript isn't ready yet.
   const startPyscript = () => setTimeout(loadPyscriptDeferred, 1200);
   if("requestIdleCallback" in window){
     requestIdleCallback(startPyscript, { timeout: 3000 });
