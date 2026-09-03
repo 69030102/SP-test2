@@ -27,7 +27,7 @@ const STR = {
     status_1: "เข้าจอดแล้ว",
     status_2: "ชำระเงินตอนออก",
     exit_label: "สแกน QR นี้ตอนออกจากลานจอด",
-    note: "ขับขี่ปลอดภัย",
+    note: "ขับดีๆ นะ",
     save_ticket_btn: "บันทึกบัตรลงมือถือ",
     rate_note: h => `ชั่วโมงแรกฟรี จากนั้นคิด ${CONFIG.CURRENCY}${h} ต่อชั่วโมง`,
     not_found_title: "ไม่พบข้อมูลบัตร",
@@ -127,7 +127,7 @@ function zigzagSVG(){
 function iconScan(){ return `<svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 7V4h3M20 7V4h-3M4 17v3h3M20 17v3h-3"/></svg>`; }
 function iconCar(){ return `<svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 16v-4l2-5h12l2 5v4"/><circle cx="7.5" cy="16.5" r="1.5"/><circle cx="16.5" cy="16.5" r="1.5"/></svg>`; }
 function iconExit(){ return `<svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M13 4h5v16h-5M9 12h9M13 8l4 4-4 4"/></svg>`; }
-function iconCheck(){ return `<svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M8 12l3 3 5-5"/></svg>`; }
+function iconCheck(){ return `<svg class="check-draw" viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M8 12l3 3 5-5"/></svg>`; }
 function iconClock(){ return `<svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 3"/></svg>`; }
 
 function render(){
@@ -144,7 +144,7 @@ function render(){
 function renderHome(view){
   view.innerHTML = `
     <div class="fade-in">
-      <div class="ticket">
+      <div class="ticket stagger">
         <div class="head-row">
           <div class="head-brand">
             <div class="head-name">SMART PARKING</div>
@@ -161,7 +161,7 @@ function renderHome(view){
         </div>
         <div class="divider"></div>
         <p class="sub-caps" style="margin-bottom:8px;">${tr('pill_scan')}</p>
-        <div class="qr-wrap" id="qrcode"></div>
+        <div class="qr-wrap qr-bounce" id="qrcode"></div>
         <p class="footer-note" style="margin-bottom:0;">${tr('awaiting')}</p>
       </div>
       <div class="zig">${zigzagSVG()}</div>
@@ -196,8 +196,8 @@ function renderTicket(view, params){
   if(!id || !t) return renderNotFound(view);
 
   view.innerHTML = `
-    <div class="rise-in">
-      <div class="ticket" id="ticketCard">
+    <div class="issue-in">
+      <div class="ticket stagger" id="ticketCard">
         <div class="head-row">
           <div class="head-brand">
             <div class="head-name">SMART PARKING</div>
@@ -222,7 +222,7 @@ function renderTicket(view, params){
         <div class="divider"></div>
         <p class="sub-caps" style="margin-bottom:8px;">${tr('exit_label')}</p>
         <div class="qr-block">
-          <div class="qr-wrap" id="qrcode"></div>
+          <div class="qr-wrap qr-bounce" id="qrcode"></div>
           <p class="note">${tr('note')}</p>
           <p class="footer-note">${tr('footer_note')}</p>
         </div>
@@ -244,6 +244,7 @@ function renderTicket(view, params){
     const originalLabel = btn.textContent;
     btn.disabled = true;
     const targetCard = document.getElementById("ticketCard");
+    targetCard.classList.remove("stagger");
     try{
       if(document.fonts && document.fonts.ready){ await document.fonts.ready; }
       const canvas = await html2canvas(targetCard, { backgroundColor: "#fbf9f3", scale: 2, useCORS: true, logging: false });
